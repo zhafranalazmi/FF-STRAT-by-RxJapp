@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11171b">
+    <title>FF Strategi By RXJAPP — Editor Bermuda</title>
+    <link rel="stylesheet" href="app.css">
+  </head>
+  <body>
+    <main class="app-shell" id="appShell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="FF Strategi">FF STRAT <span>By JAPP</span></a>
+        <label class="map-select">
+          <span class="sr-only">Map</span>
+          <select aria-label="Map" id="mapSelect">
+            <option value="bermuda">Bermuda</option>
+            <option value="kalahari">Kalahari</option>
+            <option value="nextera">Nextera</option>
+            <option value="purgatory">Purgatory</option>
+            <option value="solara">Solara</option>
+          </select>
+        </label>
+        <div class="current-plan" id="currentPlanTitle">Match 1 – Plan A</div>
+        <div class="top-actions">
+          <button class="button subtle" id="undoButton" title="Undo (Ctrl+Z)">Undo</button>
+          <button class="button subtle" id="redoButton" title="Redo (Ctrl+Y)">Redo</button>
+          <button class="button subtle" id="presentationButton">Presentasi</button>
+          <button class="button subtle" id="fullscreenButton" aria-label="Masuk layar penuh" title="Masuk layar penuh">⛶</button>
+          <button class="button primary" id="exportButton">Ekspor PNG</button>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <nav class="toolbar" aria-label="Alat gambar">
+          <button class="tool-button active" data-tool="select" aria-label="Pilih objek" title="Pilih / pindahkan">
+            <span class="tool-icon">↖</span><span>Pilih</span>
+          </button>
+          <button class="tool-button" data-tool="pan" aria-label="Geser map" title="Geser map dengan menarik">
+            <span class="tool-icon">✋</span><span>Geser</span>
+          </button>
+          <button class="tool-button" data-tool="zoom" aria-label="Zoom map" title="Klik map untuk memperbesar; Shift+klik untuk memperkecil">
+            <span class="tool-icon">⌕</span><span>Zoom</span>
+          </button>
+          <button class="tool-button" data-tool="pen" aria-label="Pen" title="Gambar bebas">
+            <span class="tool-icon">✎</span><span>Pen</span>
+          </button>
+          <button class="tool-button" data-tool="line" aria-label="Garis" title="Garis">
+            <span class="tool-icon">／</span><span>Garis</span>
+          </button>
+          <button class="tool-button" data-tool="arrow" aria-label="Panah" title="Panah">
+            <span class="tool-icon">➤</span><span>Panah</span>
+          </button>
+          <button class="tool-button" data-tool="circle" aria-label="Zona lingkaran" title="Zona lingkaran">
+            <span class="tool-icon">◯</span><span>Zona</span>
+          </button>
+          <button class="tool-button" data-tool="polygon" aria-label="Zona bebas" title="Klik untuk membuat titik, Enter untuk selesai">
+            <span class="tool-icon">⬡</span><span>Area</span>
+          </button>
+          <button class="tool-button" data-tool="text" aria-label="Teks" title="Tambah label">
+            <span class="tool-icon">T</span><span>Teks</span>
+          </button>
+          <button class="tool-button" data-tool="erase" aria-label="Hapus objek" title="Hapus objek">
+            <span class="tool-icon">⌫</span><span>Hapus</span>
+          </button>
+        </nav>
+
+        <section class="canvas-region" aria-label="Editor strategi">
+          <div class="zoom-controls" aria-label="Kontrol zoom map">
+            <button class="zoom-button" id="zoomOutButton" type="button" aria-label="Perkecil map" title="Perkecil">−</button>
+            <output id="zoomLevel" aria-live="polite">100%</output>
+            <button class="zoom-button" id="zoomInButton" type="button" aria-label="Perbesar map" title="Perbesar">+</button>
+            <button class="zoom-fit-button" id="zoomResetButton" type="button" title="Kembalikan ukuran map">Reset</button>
+            <span class="touch-hint">2 jari: zoom & geser</span>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="mapCanvas" width="768" height="768" aria-label="Map Bermuda untuk menggambar strategi"></canvas>
+            <div class="canvas-hint" id="canvasHint">Pilih alat lalu gambar di map</div>
+            <div class="object-editor" id="objectEditor" hidden>
+              <label title="Warna objek"><span class="sr-only">Warna objek</span><input id="objectColor" type="color" value="#39d4c6"></label>
+              <label class="stroke-control">Garis <input id="objectWidth" type="range" min="2" max="16" value="5"></label>
+              <label class="text-size-control">Ukuran teks <output id="textSizeValue">20</output><input id="textSize" type="range" min="10" max="48" value="20"></label>
+              <label class="text-padding-control">Padding BG <output id="textPaddingValue">5</output><input id="textPadding" type="range" min="0" max="24" value="5"></label>
+              <button class="icon-button danger" id="deleteSelected" title="Hapus objek terpilih" aria-label="Hapus objek terpilih">Hapus</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="mobile-tool-row" id="mobileToolRow" aria-label="Toolbar editor"></div>
+
+        <aside class="sidebar">
+          <section class="side-section">
+            <div class="section-heading">STRATEGI</div>
+            <div class="plan-list" id="planList"></div>
+            <div class="plan-actions">
+              <button class="button small" id="addMatchButton">+ Match</button>
+              <button class="button small" id="addPlanButton">+ Plan</button>
+              <button class="button small danger" id="deletePlanButton">Hapus Plan</button>
+              <button class="button small danger" id="deleteMatchButton">Hapus Match</button>
+            </div>
+          </section>
+          <section class="side-section">
+            <div class="section-heading">LAYER FASE</div>
+            <label class="phase-option"><input type="checkbox" data-phase="landing" checked><span class="phase-dot landing"></span>Landing</label>
+            <label class="phase-option"><input type="checkbox" data-phase="early" checked><span class="phase-dot early"></span>Early zone</label>
+            <label class="phase-option"><input type="checkbox" data-phase="mid"><span class="phase-dot mid"></span>Mid zone</label>
+            <label class="phase-option"><input type="checkbox" data-phase="late"><span class="phase-dot late"></span>Late zone</label>
+            <label class="phase-picker">Fase objek baru
+              <select id="activePhase">
+                <option value="landing">Landing</option>
+                <option value="early" selected>Early zone</option>
+                <option value="mid">Mid zone</option>
+                <option value="late">Late zone</option>
+              </select>
+            </label>
+          </section>
+          <section class="side-section notes-section">
+            <div class="section-heading">CATATAN SQUAD</div>
+            <label class="note-field squad-a"><span>Squad A · IGL</span><input id="squadA" type="text" placeholder="[Nama]" maxlength="60"></label>
+            <label class="note-field squad-b"><span>Squad B · IGL</span><input id="squadB" type="text" placeholder="[Nama]" maxlength="60"></label>
+            <label class="note-field general-note"><span>Catatan</span><textarea id="generalNote" rows="3" placeholder="Tulis catatan strategi..."></textarea></label>
+          </section>
+          <div class="save-status" id="saveStatus" role="status">Tersimpan di perangkat ini</div>
+        </aside>
+      </section>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <button class="presentation-back" id="presentationBackButton" type="button" aria-label="Kembali dari presentasi">← Kembali</button>
+      <dialog class="text-dialog" id="textDialog">
+        <form method="dialog" id="textForm">
+          <h2 id="textDialogTitle">Tambah label</h2>
+          <label for="textInput">Teks label</label>
+          <input id="textInput" name="label" type="text" maxlength="80" autocomplete="off" required>
+          <div class="dialog-actions">
+            <button class="button subtle" id="cancelTextButton" type="button">Batal</button>
+            <button class="button primary" id="saveTextButton" value="save">Simpan</button>
+          </div>
+        </form>
+      </dialog>
+      <dialog class="confirm-dialog" id="confirmDialog" aria-labelledby="confirmDialogTitle" aria-describedby="confirmDialogMessage">
+        <div class="confirm-dialog-content">
+          <h2 id="confirmDialogTitle">Konfirmasi</h2>
+          <p id="confirmDialogMessage"></p>
+          <div class="dialog-actions">
+            <button class="button subtle" id="cancelConfirmButton" type="button">Batal</button>
+            <button class="button danger" id="acceptConfirmButton" type="button">Hapus</button>
+          </div>
+        </div>
+      </dialog>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
